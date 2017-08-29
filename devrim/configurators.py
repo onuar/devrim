@@ -1,12 +1,17 @@
 from devrim._internals import _log
 
+def _load_file(filename):
+    with open(filename) as file_data:
+        import json
+        json_data = json.load(file_data)
+        return json_data
+
 def load(filename = 'host.json', hostname = None, port = None, dispatcher = None, nodes = None):
     is_needed = hostname == None or port  == None or nodes == None or len(nodes) == 0
     if not is_needed:
         return
-    with open(filename) as file_data:
-        import json
-        json_data = json.load(file_data)
+    
+    json_data = _load_file(filename)
     
     server_data = json_data["server"]
     port_data = port if port != None else server_data["port"]
@@ -16,7 +21,7 @@ def load(filename = 'host.json', hostname = None, port = None, dispatcher = None
         discipline_data = 0
 
     if not isinstance(port_data, int):
-        raise TypeError('port should be an integer')
+        raise TypeError('port should be an integer: {0}'.format(port_data))
 
     from devrim.models import Configuration
     from devrim.dispatchers import Discipline, RoundRobinDispatcher, WeightedRoundRobin
