@@ -1,0 +1,1 @@
+node ./bin/www 5001 & node ./bin/www 5002 & node ./bin/www 5003

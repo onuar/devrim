@@ -1,0 +1,12 @@
+{
+    "server": {
+        "hostname": "localhost",
+        "port": 4242,
+        "discipline": 1
+    },
+    "nodes": [
+        "localhost:5001",
+        "localhost:5002",
+        "localhost:5003"
+    ]
+}
