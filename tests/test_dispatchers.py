@@ -68,8 +68,8 @@ def test_weighted_robin_should_parse_with_weight_score():
     assert weighted.nodes[1]['weight'] == 1
     assert weighted.nodes[2]['weight'] == 2
 
-def weighted_assertion_func(row, expecting):
-    assert row['node'] == expecting
+def assertion_weighted_robin_func(node_name, expecting):
+    assert node_name == expecting
 
 
 def test_weighted_robin_should_give_by_weight():
@@ -81,8 +81,8 @@ def test_weighted_robin_should_give_by_weight():
         ]
     }
     weighted = WeightedRoundRobin(json_data = config_json)
-    list(map(lambda row: weighted_assertion_func(row, 'localhost:5001'), list(map(lambda x: weighted.get_next_one(), list(range(3))))))
+    list(map(lambda node: assertion_weighted_robin_func(node, 'localhost:5001'), list(map(lambda x: weighted.get_next_one(), list(range(3))))))
     fourth_one = weighted.get_next_one()
-    assert fourth_one['node'] == 'localhost:5002'
-    list(map(lambda row: weighted_assertion_func(row, 'localhost:5003'), list(map(lambda x: weighted.get_next_one(), list(range(2))))))
-    list(map(lambda row: weighted_assertion_func(row, 'localhost:5001'), list(map(lambda x: weighted.get_next_one(), list(range(3))))))
+    assert fourth_one == 'localhost:5002'
+    list(map(lambda node: assertion_weighted_robin_func(node, 'localhost:5003'), list(map(lambda x: weighted.get_next_one(), list(range(2))))))
+    list(map(lambda node: assertion_weighted_robin_func(node, 'localhost:5001'), list(map(lambda x: weighted.get_next_one(), list(range(3))))))
