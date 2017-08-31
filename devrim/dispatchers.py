@@ -55,8 +55,8 @@ class WeightedRoundRobin(BaseDispatcher):
         if self.req_counter == self.reset_count:
             self.reset_used_stat()
 
-        # _log('temp', list(availables))
-        return node
+        # _log('dev', list(availables))
+        return node['node']
 
 
 class StickyClient(BaseDispatcher):
