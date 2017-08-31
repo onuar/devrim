@@ -1,20 +1,7 @@
-import pytest
 from unittest.mock import patch
+
 from devrim.configurators import load
 from devrim.models import Configuration
-
-def test_server_hostname_should_be_localhost():
-    config = load()
-    assert config.hostname == "localhost"
-
-def test_there_should_be_three_nodes():
-    config = load()
-    assert len(config.nodes) == 3
-
-# def test_port_should_be_integer():
-#     with pytest.raises(TypeError) as excinfo:
-#         settings = load()
-#     assert 'port should be an integer' in str(excinfo.value)
 
 def config_patcher(json = {}, hostname = None, port = None, dispatcher = None, nodes = None):
     def config_decorator(func):
@@ -27,6 +14,33 @@ def config_patcher(json = {}, hostname = None, port = None, dispatcher = None, n
             func(config)
         return func_wrapper
     return config_decorator
+
+@config_patcher({
+        'server':{   
+            'hostname':'localhost',
+            'port':4242
+            },
+            'nodes':{
+                'localhost:5001'
+            }
+        })
+def test_server_hostname_should_be_localhost(mocked_config):
+    assert mocked_config.hostname == "localhost"
+
+@config_patcher({
+        'server':{   
+            'hostname':'localhost',
+            'port':4242
+            },
+            'nodes':{
+                'localhost:5001',
+                'localhost:5002',
+                'localhost:5003',
+                'localhost:5004'
+            }
+        })
+def test_there_should_be_four_nodes(mocked_config):
+    assert len(mocked_config.nodes) == 4
 
 @config_patcher({
         'server':{   

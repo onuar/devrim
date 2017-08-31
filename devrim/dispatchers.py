@@ -1,4 +1,5 @@
 from enum import Enum, unique
+from operator import itemgetter
 
 from devrim.exceptions import NodesNotFoundException
 from devrim._internals import _log
@@ -7,7 +8,7 @@ class BaseDispatcher:
     pass
 
 class RoundRobinDispatcher(BaseDispatcher):
-    def __init__(self, json_data, nodes):
+    def __init__(self, json_data, nodes = None):
         self.nodes = nodes
         self.json_data = json_data
         self._route_index = 0
@@ -28,9 +29,35 @@ class RoundRobinDispatcher(BaseDispatcher):
         return next_route
 
 class WeightedRoundRobin(BaseDispatcher):
-    def __init__(self, nodes, json_data):
+    def __init__(self, json_data, nodes = None):
         self.nodes = nodes
         self.json_data = json_data
+        self._internal_nodes = []
+        self.reset_count = 0
+        self.req_counter = 0
+        self._load_configs()
+    
+    def _load_configs(self):
+        self.nodes = self.nodes if self.nodes != None else list(self.json_data["nodes"])
+        self._internal_nodes = sorted([{'id':_, 'node':self.nodes[_]['node'], 'used':0, 'max':self.nodes[_]['weight']} for _ in range(len(self.nodes))], key=itemgetter('id'))
+        self.reset_count = sum(row['max'] for row in self._internal_nodes)
+
+    def reset_used_stat(self):
+        for row in self._internal_nodes:
+            row['used'] = 0
+
+    def get_next_one(self):
+        self.req_counter += 1
+        availables = sorted(filter(lambda row: row['used'] < row['max'], self._internal_nodes), key=itemgetter('id'))
+        availables[0]['used'] += 1
+        node = availables[0]
+
+        if self.req_counter == self.reset_count:
+            self.reset_used_stat()
+
+        # _log('temp', list(availables))
+        return node
+
 
 class StickyClient(BaseDispatcher):
     def __init__(self, nodes):
