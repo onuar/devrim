@@ -41,8 +41,10 @@ class WeightedRoundRobin(BaseDispatcher):
         self.nodes = self.nodes if self.nodes != None else list(self.json_data["nodes"])
         self._internal_nodes = sorted([{'id':_, 'node':self.nodes[_]['node'], 'used':0, 'max':self.nodes[_]['weight']} for _ in range(len(self.nodes))], key=itemgetter('id'))
         self.reset_count = sum(row['max'] for row in self._internal_nodes)
+        # _log('dev', self.reset_count)
 
     def reset_used_stat(self):
+        self.req_counter = 0
         for row in self._internal_nodes:
             row['used'] = 0
 
@@ -51,22 +53,30 @@ class WeightedRoundRobin(BaseDispatcher):
         availables = sorted(filter(lambda row: row['used'] < row['max'], self._internal_nodes), key=itemgetter('id'))
         availables[0]['used'] += 1
         node = availables[0]
+        # _log('dev', list(availables))
 
         if self.req_counter == self.reset_count:
             self.reset_used_stat()
 
-        # _log('dev', list(availables))
         return node['node']
 
 
-class StickyClient(BaseDispatcher):
+class LeastConnection(BaseDispatcher):
     def __init__(self, nodes):
         self.nodes = nodes
+        self.json_data = json_data
+        self._load_configs()
+
+    def _load_configs(self):
+        pass
+
+    def get_next_one(self):
+        pass
 
 @unique
 class Discipline(Enum):
     NONE = 0
     ROUNDROBIN = 1
     WEIGHTEDROUNDROBIN = 2
-    STICKYCLIENT = 3
+    LEASTCONNECTION = 3
 
