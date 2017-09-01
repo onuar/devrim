@@ -1,7 +1,7 @@
 import http.client
 from werkzeug.wrappers import Response, Request
 
-from devrim._internals import _log
+from devrim._internals import _log, execstat
 from devrim.dispatchers import Discipline,RoundRobinDispatcher
 
 class Devrim:
@@ -38,9 +38,15 @@ class Devrim:
 
         return response
 
+    @execstat
+    def _internal_request(self, connection):
+        internal_response = connection.getresponse()
+        return internal_response
+
     @Request.application
     def _handler(self, request):
         node = self.dispatcher.get_next_one()
+        # _log('dev', node)
         req_headers = dict(request.headers)
     
         if request.method == "POST" or request.method == "PUT":
@@ -52,7 +58,7 @@ class Devrim:
 
         connection = http.client.HTTPConnection(node)
         connection.request(request.method, request.full_path, body = form_data, headers = req_headers)
-        internal_response = connection.getresponse()
+        internal_response = self._internal_request(connection)
         response = self._convert_to_external_response(internal_response)
         # response = Response(str(self.nodes) + " >>>"+ node, status=200, content_type="text/html") # test line
         return response
