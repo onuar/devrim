@@ -24,7 +24,7 @@ def load(filename = 'host.json', hostname = None, port = None, dispatcher = None
         raise TypeError('port should be an integer: {0}'.format(port_data))
 
     from devrim.models import Configuration
-    from devrim.dispatchers import Discipline, RoundRobinDispatcher, WeightedRoundRobin
+    from devrim.dispatchers import Discipline, RoundRobinDispatcher, WeightedRoundRobin, LeastConnection
     config = Configuration()
     
     config.hostname = hostname if hostname != None else server_data["hostname"]
@@ -38,6 +38,8 @@ def load(filename = 'host.json', hostname = None, port = None, dispatcher = None
                 config.dispatcher = RoundRobinDispatcher(json_data, nodes)
             elif config.discipline == Discipline.WEIGHTEDROUNDROBIN:
                 config.dispatcher = WeightedRoundRobin(json_data, nodes)
+            elif config.discipline == Discipline.LEASTCONNECTION:
+                config.discipline = LeastConnection(json_data, nodes)
         else: 
             config.dispatcher = RoundRobinDispatcher(json_data, nodes)
     

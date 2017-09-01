@@ -2,11 +2,13 @@
     "server": {
         "hostname": "localhost",
         "port": 4242,
-        "discipline": 1
-    },
-    "nodes": [
-        "localhost:5001",
-        "localhost:5002",
-        "localhost:5003"
+        "discipline": 2
+    }
+    ,
+    "nodes":[
+        {"node":"localhost:5001", "weight": 3},
+        {"node":"localhost:5002", "weight": 1},
+        {"node":"localhost:5003", "weight": 2}
     ]
+    
 }
