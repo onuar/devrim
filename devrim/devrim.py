@@ -46,7 +46,7 @@ class Devrim:
     @Request.application
     def _handler(self, request):
         node = self.dispatcher.get_next_one()
-        # _log('dev', node)
+        _log('dev', "request begins")
         req_headers = dict(request.headers)
     
         if request.method == "POST" or request.method == "PUT":
@@ -60,14 +60,14 @@ class Devrim:
         connection.request(request.method, request.full_path, body = form_data, headers = req_headers)
         internal_response = self._internal_request(connection)
         response = self._convert_to_external_response(internal_response)
-        # response = Response(str(self.nodes) + " >>>"+ node, status=200, content_type="text/html") # test line
+        _log('dev', "request ends")
         return response
 
     def run(self):
         self._load_configs()
         from werkzeug.serving import run_simple
         _log("info", "{0}:{1} => {2}".format(self.hostname, self.port, str(self.nodes)))
-        run_simple(self.hostname, self.port, self._handler)
+        run_simple(self.hostname, self.port, self._handler, threaded=True)
 
     def stop(self):
         # if it's possible, stop werkzeug service
